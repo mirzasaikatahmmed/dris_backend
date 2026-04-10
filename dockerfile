@@ -13,7 +13,9 @@ RUN npm install
 # copy current code inside the container
 COPY . .
 
-# run prisma migrations 
+# run prisma migrations
+ARG DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy
+ENV DATABASE_URL=${DATABASE_URL}
 RUN npx prisma generate
 
 # run app build 
