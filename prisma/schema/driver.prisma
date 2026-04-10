@@ -1,0 +1,40 @@
+model Driver {
+  id String @id @default(uuid()) @db.Uuid
+
+  businessLocationId    Int
+
+  vehicleType   VehicleType?
+  vehicleNumber String?      @db.VarChar(30)
+
+  isActive    Boolean @default(true)
+  isOnline    Boolean @default(false) // accepting new assignments?
+  isAvailable Boolean @default(true) // not busy / on break
+
+  profileImageUrl String? @db.VarChar(255)
+
+  rating          Float @default(5.0)
+  totalRatings    Int   @default(0)
+  completedOrders Int   @default(0)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  
+  lightspeedOrders LightspeedOrder[] @relation("LightSpeedOrders")
+
+  // Relations
+  userId         String     @unique @db.Uuid
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedOrders Order[]    @relation("AssignedDriver")
+
+  @@index([businessLocationId])
+  @@index([isOnline, isAvailable])
+  @@map("drivers")
+}
+
+enum VehicleType {
+  MOTORCYCLE
+  SCOOTER
+  BICYCLE
+  CAR
+}

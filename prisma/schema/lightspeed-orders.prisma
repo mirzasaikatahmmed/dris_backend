@@ -1,0 +1,69 @@
+model LightspeedOrder {
+  id String @id @default(uuid()) @db.Uuid
+
+  orderNumber String @unique
+
+  lightspeedOrderId String? @db.VarChar(100)
+
+  businessLocationId Int
+
+  customerId String @db.Uuid
+  customer   User   @relation("CustomerOrders", fields: [customerId], references: [id])
+
+  driverId String? @db.Uuid
+  driver   Driver?   @relation("LightSpeedOrders", fields: [driverId], references: [id])
+
+  type OrderType
+
+  subtotal    Decimal  @db.Decimal(10, 2)
+  tax         Decimal  @db.Decimal(10, 2)
+  deliveryFee Decimal? @db.Decimal(10, 2)
+  discount    Decimal? @db.Decimal(10, 2)
+  total       Decimal  @db.Decimal(10, 2)
+
+  status OrderStatus @default(PENDING)
+
+  deliveryAddress Json? 
+
+  note String? @db.Text
+
+  requestPayload  Json?
+  responsePayload Json?
+
+  retryCount Int @default(0)
+
+  items LightspeedOrderItem[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([businessLocationId])
+  @@index([status])
+  @@index([lightspeedOrderId])
+  @@index([driverId])
+  @@index([customerId])
+}
+
+model LightspeedOrderItem {
+    id String @id @default(uuid()) @db.Uuid
+
+    orderId String @db.Uuid
+    order LightspeedOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+    sku String @db.VarChar(100)
+    nameSnapshot String @db.VarChar(255)
+
+    quantity Int
+
+    unitPrice Decimal @db.Decimal(10, 2)
+    totalPrice Decimal @db.Decimal(10, 2)
+
+    modifiers Json?
+
+    createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+    @@index([orderId])
+    @@index([sku])
+
+    @@map("lightspeed_order_item")
+}

@@ -1,0 +1,106 @@
+model Product {
+  id           String  @id @default(uuid()) @db.Uuid
+  restaurantId String  @db.Uuid
+  categoryId   String  @db.Uuid
+  externalId   String? @db.VarChar(100)
+
+  name        String  @db.VarChar(150)
+  description String? @db.Text
+  imageUrl    String? @db.VarChar(255)
+
+  isAvailable  Boolean @default(true)
+  displayOrder Int     @default(0)
+
+  lastSyncedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  category   Category   @relation(fields: [categoryId], references: [id])
+
+  variants  ProductVariant[]
+  allergens ProductAllergen[]
+
+  // NEW: default ingredients list
+  ingredients ProductIngredient[]
+
+  // NEW: attach modifier groups to a product
+  modifierGroups ProductModifierGroup[]
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  favorites Favorite[]
+
+  @@index([restaurantId])
+  @@index([categoryId])
+  @@map("products")
+}
+
+model ProductVariant {
+  id        String @id @default(uuid()) @db.Uuid
+  productId String @db.Uuid
+
+  name       String  @db.VarChar(100) // Small/Medium/Large
+  externalId String? @db.VarChar(100)
+
+  price       Decimal @db.Decimal(10, 2)
+  isDefault   Boolean @default(false)
+  isAvailable Boolean @default(true)
+  imageUrl    String? @db.VarChar(255)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id])
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+// NEW: included ingredients (for UI + removals if you want)
+model ProductIngredient {
+  id        String @id @default(uuid()) @db.Uuid
+  productId String @db.Uuid
+
+  name        String  @db.VarChar(120) // "Bacon Bits"
+  isRemovable Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@map("product_ingredients")
+}
+
+// =======================
+// ALLERGENS
+// =======================
+
+model Allergen {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String  @unique @db.VarChar(100)
+  code        String  @unique @db.VarChar(20)
+  description String? @db.Text
+
+  products ProductAllergen[]
+
+  @@map("allergens")
+}
+
+model ProductAllergen {
+  productId  String   @db.Uuid
+  allergenId String   @db.Uuid
+  createdAt  DateTime @default(now())
+
+  product  Product  @relation(fields: [productId], references: [id])
+  allergen Allergen @relation(fields: [allergenId], references: [id])
+
+  @@id([productId, allergenId])
+  @@index([allergenId])
+  @@map("product_allergens")
+}

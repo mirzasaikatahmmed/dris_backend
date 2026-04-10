@@ -1,0 +1,16 @@
+model CategoryMapping {
+  id                 String   @id @default(uuid()) @db.Uuid
+  restaurantId       String   @db.Uuid
+  externalCategoryId String   @db.VarChar(100)
+  externalName       String?  @db.VarChar(150)
+  internalCategoryId String?  @db.Uuid
+  mappingType        String?  @db.VarChar(50)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  category   Category?  @relation(fields: [internalCategoryId], references: [id])
+
+  @@unique([restaurantId, externalCategoryId])
+  @@map("category_mappings")
+}

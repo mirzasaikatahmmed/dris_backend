@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dris_backend
+    restart: unless-stopped
+    command: sh -c "npx prisma migrate deploy && npm start"
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - ./uploads:/app/uploads
+    profiles:
+      - prod
+    networks:
+      - dris-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: dris_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - dris_db_data:/var/lib/postgresql/data
+    profiles:
+      - prod
+      - dev
+    networks:
+      - dris-network
+
+volumes:
+  dris_db_data:
+
+networks:
+  dris-network:
+    driver: bridge

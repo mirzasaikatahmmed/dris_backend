@@ -1,0 +1,60 @@
+enum Role {
+  CUSTOMER
+  ADMIN
+  DRIVER
+  GUEST
+}
+
+enum OtpType {
+  RESET_PASSWORD
+  EMAIL_VERIFY
+  LOGIN
+}
+
+enum LoyaltyTransactionType {
+  EARN
+  REDEEM
+  BONUS
+  ADJUSTMENT
+}
+
+enum CartStatus {
+  ACTIVE
+  CHECKED_OUT
+  ABANDONED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SENT_TO_POS
+  PREPARING
+  READY
+  OUT_FOR_DELIVERY
+  COMPLETED
+  CANCELLED
+  CLOSED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum OrderType {
+  TAKEAWAY
+  DELIVERY
+  
+}
+
+enum WeekDay {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}

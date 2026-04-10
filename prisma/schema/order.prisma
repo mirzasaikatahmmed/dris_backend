@@ -1,0 +1,95 @@
+model Order {
+  id           String  @id @default(uuid()) @db.Uuid
+  userId       String? @db.Uuid
+  cartId       String? @unique @db.Uuid
+  restaurantId String  @db.Uuid
+
+  orderType     OrderType
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentMethod String?       @db.VarChar(50)
+
+  subtotal       Decimal @db.Decimal(10, 2)
+  deliveryFee    Decimal @default(0) @db.Decimal(10, 2)
+  discountAmount Decimal @default(0) @db.Decimal(10, 2)
+  totalAmount    Decimal @db.Decimal(10, 2)
+
+  deliveryAddressId String? @db.Uuid
+  customerNotes     String? @db.Text
+
+  paymentIntent String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  driverId    String?   @db.Uuid
+  assignedAt  DateTime?
+  pickupTime  DateTime?
+  deliveredAt DateTime?
+
+  driver Driver? @relation("AssignedDriver", fields: [driverId], references: [id])
+
+  user            User?        @relation(fields: [userId], references: [id])
+  cart            Cart?        @relation(fields: [cartId], references: [id])
+  restaurant      Restaurant   @relation(fields: [restaurantId], references: [id])
+  deliveryAddress UserAddress? @relation(fields: [deliveryAddressId], references: [id])
+
+  
+
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([restaurantId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid()) @db.Uuid
+  orderId   String  @db.Uuid
+  productId String  @db.Uuid
+  variantId String? @db.Uuid
+
+  quantity  Int     @default(1)
+  unitPrice Decimal @db.Decimal(10, 2)
+  lineTotal Decimal @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now())
+
+  order   Order           @relation(fields: [orderId], references: [id])
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  options           OrderItemOption[]
+  lightspeedOrderId String?           @db.Uuid
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([variantId])
+  @@map("order_items")
+}
+
+// Snapshot + also keep references
+model OrderItemOption {
+  id          String @id @default(uuid()) @db.Uuid
+  orderItemId String @db.Uuid
+
+  groupId String? @db.Uuid
+  itemId  String? @db.Uuid
+
+  groupName String? @db.VarChar(100)
+  itemName  String  @db.VarChar(100)
+
+  quantity  Int     @default(1)
+  unitPrice Decimal @default(0) @db.Decimal(10, 2)
+  lineTotal Decimal @db.Decimal(10, 2)
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+
+  // Optional refs (safe if modifiers are deleted later)
+  group ModifierGroup?  @relation("GroupToOrderSelections", fields: [groupId], references: [id])
+  item  ModifierOption? @relation("OptionToOrderSelections", fields: [itemId], references: [id])
+
+  @@index([orderItemId])
+  @@index([groupId])
+  @@index([itemId])
+  @@map("order_item_options")
+}

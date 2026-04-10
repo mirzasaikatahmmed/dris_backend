@@ -1,0 +1,14 @@
+model OrderConfig {
+  id                 String @id @default(uuid())
+  businessLocationId Int    @unique
+
+  isTakeawayEnabled Boolean @default(true)
+  isDeliveryEnabled Boolean @default(false)
+
+  deliveryFee       Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("lightspeed_order_config")
+}

@@ -1,0 +1,58 @@
+model Category {
+  id           String   @id @default(uuid()) @db.Uuid
+  restaurantId String   @db.Uuid
+  name         String   @db.VarChar(100)
+  description  String?  @db.Text
+  parentId     String?  @db.Uuid
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  imageUrl     String?  @db.VarChar(255)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  restaurant    Restaurant        @relation(fields: [restaurantId], references: [id])
+  parent        Category?         @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  subcategories Category[]        @relation("CategoryHierarchy")
+  // menuLinks    MenuCategory[]
+  products      Product[]
+  menus         Menu[]
+  mappings      CategoryMapping[]
+
+  @@index([restaurantId, parentId], name: "idx_category_hierarchy")
+}
+
+model Menu {
+  id           String  @id @default(uuid()) @db.Uuid
+  restaurantId String  @db.Uuid
+  name         String  @db.VarChar(100)
+  description  String? @db.Text
+  imageUrl     String? @db.VarChar(255)
+
+  isActive     Boolean   @default(true)
+  displayOrder Int       @default(0)
+  validFrom    DateTime? @db.Date
+  validUntil   DateTime? @db.Date
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  categories Category[]
+  // categories   MenuCategory[]
+
+  @@map("menus")
+}
+
+model MenuCategory {
+  id           String   @id @default(uuid()) @db.Uuid
+  menuId       String   @db.Uuid
+  categoryId   String   @db.Uuid
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // menu         Menu     @relation(fields: [menuId], references: [id])
+  // category     Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([menuId, categoryId])
+  @@map("menu_categories")
+}

@@ -1,0 +1,33 @@
+model Restaurant {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String   @db.VarChar(100)
+  description      String?  @db.Text
+  address          String?  @db.Text
+  images           String[]
+  phone            String?  @db.VarChar(20)
+  isActive         Boolean  @default(true)
+  deliveryRadiusKm Decimal  @default(8.0) @db.Decimal(5, 2)
+  allowedPostcodes Json?
+  openingHour      String?
+  closingHour      String?
+  offDay           WeekDay?
+  kitchenApiUrl    String?  @db.VarChar(255)
+  kitchenApiKey    String?  @db.VarChar(255)
+
+  clientId     String    @db.VarChar(255)
+  clientSecret String    @db.VarChar(255)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  categories     Category[]
+  menus          Menu[]
+  products       Product[]
+  modifierGroups ModifierGroup[]
+
+  carts            Cart[]
+  orders           Order[]
+  categoryMappings CategoryMapping[]
+
+  @@map("restaurants")
+}
