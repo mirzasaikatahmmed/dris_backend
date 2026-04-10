@@ -1,13 +1,11 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: mirzasaikatahmmed/dris_backend:latest
     container_name: dris_backend
     restart: unless-stopped
     command: sh -c "npx prisma migrate deploy && npm start"
     ports:
-      - "3000:3000"
+      - "5072:3000"
     env_file:
       - .env
     depends_on:
